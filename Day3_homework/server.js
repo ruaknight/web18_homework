@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-app.use(express.static(__dirname + "/html-css"));
+app.use(express.static("/html-css"));
 
 app.get("/", function(req, res) {
     res.sendFile(__dirname + "/html-css/index.html")
