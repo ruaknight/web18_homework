@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const app = express();
 
 app.use(bodyParser.urlencoded({extended:false}));
+app.use('/', express.static("view"));
 
 app.get("/", (req, res) => {
     let questions = [];
@@ -44,6 +45,16 @@ app.get("/vote/yes/:questionId", (req, res) => {
     res.redirect("/");
 })
 
+app.get("/getTotalQuestions", (req, res) => {
+    console.log("request received");
+    let questions = [];
+    try {
+        questions = JSON.parse(fs.readFileSync("view/database.json"));
+    } catch (error) {
+    }
+    
+    res.status(200).send({totalQuestion: questions.length});
+})
 
 app.get("/vote/no/:questionId", (req, res) => {
     const { questionId } = req.params;

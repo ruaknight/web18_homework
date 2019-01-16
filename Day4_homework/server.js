@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const app = express();
 
 app.use(bodyParser.urlencoded({extended:false}));
+app.use(express.static("view"));
 
 app.get("/randomquestion", (req, res) => {
     let questions = [];
@@ -27,7 +28,7 @@ app.get("/randomquestion", (req, res) => {
     }
 });
 
-app.get("/:questionId", (req, res) => {
+app.get("/question/:questionId", async (req, res) => {
     const { questionId } = req.params;
     let questions = [];
     try {
@@ -35,12 +36,16 @@ app.get("/:questionId", (req, res) => {
     } catch (error) {
         // console.log(error);
     }
-    questions.forEach((item, index) => {
-        if(item.id == questionId) {
-            res.send(questions[questionId]);
-            return;
-        }
-    })
+    const selectedQuestion = questions.filter((item) => item.id.toString() === questionId)[0];
+    if (selectedQuestion) {
+        const yesPercent = Math.round(selectedQuestion.yes / (selectedQuestion.yes + selectedQuestion.no) * 100).toFixed(2);
+        const noPercent = 100 - yesPercent;
+        res.send(`
+        <h1>${selectedQuestion.content}</h1>
+        <p>${selectedQuestion.yes + selectedQuestion.no}</p>
+        <p>Yes: ${yesPercent}</p>
+        <p>No: ${noPercent}</p>`)
+    } else res.status(404).end("question not found")
 })
 
 app.get("/vote/:questionId/:answer", (req, res) => {
